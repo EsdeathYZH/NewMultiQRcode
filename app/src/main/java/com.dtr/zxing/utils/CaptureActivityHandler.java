@@ -66,8 +66,8 @@ public class CaptureActivityHandler extends Handler {
 		case R.id.decode_succeeded:
 			state = State.SUCCESS;
 			Bundle bundle = message.getData();
-
 			activity.handleDecode((Result) message.obj, bundle);
+			restartPreviewAndDecode();
 			break;
 		case R.id.decode_failed:
 			// We're decoding as fast as possible, so when one decode fails,

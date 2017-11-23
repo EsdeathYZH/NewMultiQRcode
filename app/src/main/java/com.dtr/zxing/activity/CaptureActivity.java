@@ -195,7 +195,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 	public void handleDecode(Result rawResult, Bundle bundle) {
 		Canvas canvas=null;
 		SurfaceHolder holder=drawPreview.getHolder();
-		Toast.makeText(this,"Find QRcode!",Toast.LENGTH_LONG).show();
 		try{
 			synchronized (holder){
 				canvas=holder.lockCanvas();
@@ -203,7 +202,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 				p.setColor(Color.WHITE);
 				p.setTextSize(28);
 				canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);//绘制透明色
-				canvas.drawText(rawResult.getText(), 100, 310, p);//画出结果
+				canvas.drawText(rawResult.getText(),mCropRect.centerX(), mCropRect.centerY(), p);//画出结果
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -213,7 +212,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 			}
 		}
 		inactivityTimer.onActivity();
-		beepManager.playBeepSoundAndVibrate();
+		//beepManager.playBeepSoundAndVibrate();//不让手机振动
 
 		/*bundle.putInt("width", mCropRect.width());
 		bundle.putInt("height", mCropRect.height());
