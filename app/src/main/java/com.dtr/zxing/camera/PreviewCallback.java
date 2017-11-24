@@ -30,7 +30,7 @@ public class PreviewCallback implements Camera.PreviewCallback {
 	private Handler previewHandler;
 	private int previewMessage;
 
-	public PreviewCallback(CameraConfigurationManager configManager) {
+	public PreviewCallback(CameraConfigurationManager configManager){
 		this.configManager = configManager;
 	}
 

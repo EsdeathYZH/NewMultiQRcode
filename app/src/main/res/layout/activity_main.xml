@@ -12,6 +12,7 @@
     <Button
         android:id="@+id/scan_file"
         android:textSize="21sp"
+        android:text="扫描样本"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>
