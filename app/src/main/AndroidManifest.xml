@@ -32,7 +32,7 @@
             android:theme="@android:style/Theme.Black.NoTitleBar"
             android:screenOrientation="landscape"/>
         <activity android:name="com.dtr.zxing.activity.ScanFileActivity"
-            android:theme="@android:style/Theme.Black.NoTitleBar"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="portrait"/>
 
     </application>
