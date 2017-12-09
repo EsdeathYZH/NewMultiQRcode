@@ -30,4 +30,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('libs/BT300Ctrl.jar')
     compile files('libs/zxing.jar')
+    compile project(':openCVLibrary331')
 }

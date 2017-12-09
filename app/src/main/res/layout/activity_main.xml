@@ -16,4 +16,17 @@
         android:text="扫描样本"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/img_huaishi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+    <Button
+        android:id="@+id/btn_gray_process"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/img_huaishi"
+        android:layout_centerHorizontal="true"
+        android:text="灰度化"/>"
 </LinearLayout>

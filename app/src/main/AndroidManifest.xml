@@ -34,7 +34,16 @@
         <activity android:name="com.dtr.zxing.activity.ScanFileActivity"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="portrait"/>
+        <activity android:name=".ImageManipulationsActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation"></activity>
 
     </application>
 
+    <supports-screens android:resizeable="true"
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:anyDensity="true"/>
 </manifest>
