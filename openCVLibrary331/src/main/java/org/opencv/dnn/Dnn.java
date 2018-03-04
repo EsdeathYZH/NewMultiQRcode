@@ -8,9 +8,15 @@ import java.lang.String;
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.utils.Converters;
+
+// C++: class Dnn
+//javadoc: Dnn
 
 public class Dnn {
 
@@ -187,6 +193,7 @@ public class Dnn {
     //
 
     //javadoc: createCaffeImporter(prototxt, caffeModel)
+    @Deprecated
     public static Importer createCaffeImporter(String prototxt, String caffeModel)
     {
         
@@ -196,6 +203,7 @@ public class Dnn {
     }
 
     //javadoc: createCaffeImporter(prototxt)
+    @Deprecated
     public static Importer createCaffeImporter(String prototxt)
     {
         
@@ -210,6 +218,7 @@ public class Dnn {
     //
 
     //javadoc: createTensorflowImporter(model)
+    @Deprecated
     public static Importer createTensorflowImporter(String model)
     {
         
@@ -224,6 +233,7 @@ public class Dnn {
     //
 
     //javadoc: createTorchImporter(filename, isBinary)
+    @Deprecated
     public static Importer createTorchImporter(String filename, boolean isBinary)
     {
         
@@ -233,6 +243,7 @@ public class Dnn {
     }
 
     //javadoc: createTorchImporter(filename)
+    @Deprecated
     public static Importer createTorchImporter(String filename)
     {
         
@@ -243,14 +254,50 @@ public class Dnn {
 
 
     //
-    // C++:  void shrinkCaffeModel(String src, String dst)
+    // C++:  void NMSBoxes(vector_Rect bboxes, vector_float scores, float score_threshold, float nms_threshold, vector_int& indices, float eta = 1.f, int top_k = 0)
     //
+
+    //javadoc: NMSBoxes(bboxes, scores, score_threshold, nms_threshold, indices, eta, top_k)
+    public static void NMSBoxes(MatOfRect bboxes, MatOfFloat scores, float score_threshold, float nms_threshold, MatOfInt indices, float eta, int top_k)
+    {
+        Mat bboxes_mat = bboxes;
+        Mat scores_mat = scores;
+        Mat indices_mat = indices;
+        NMSBoxes_0(bboxes_mat.nativeObj, scores_mat.nativeObj, score_threshold, nms_threshold, indices_mat.nativeObj, eta, top_k);
+        
+        return;
+    }
+
+    //javadoc: NMSBoxes(bboxes, scores, score_threshold, nms_threshold, indices)
+    public static void NMSBoxes(MatOfRect bboxes, MatOfFloat scores, float score_threshold, float nms_threshold, MatOfInt indices)
+    {
+        Mat bboxes_mat = bboxes;
+        Mat scores_mat = scores;
+        Mat indices_mat = indices;
+        NMSBoxes_1(bboxes_mat.nativeObj, scores_mat.nativeObj, score_threshold, nms_threshold, indices_mat.nativeObj);
+        
+        return;
+    }
+
+
+    //
+    // C++:  void shrinkCaffeModel(String src, String dst, vector_String layersTypes = std::vector<String>())
+    //
+
+    //javadoc: shrinkCaffeModel(src, dst, layersTypes)
+    public static void shrinkCaffeModel(String src, String dst, List<String> layersTypes)
+    {
+        
+        shrinkCaffeModel_0(src, dst, layersTypes);
+        
+        return;
+    }
 
     //javadoc: shrinkCaffeModel(src, dst)
     public static void shrinkCaffeModel(String src, String dst)
     {
         
-        shrinkCaffeModel_0(src, dst);
+        shrinkCaffeModel_1(src, dst);
         
         return;
     }
@@ -297,7 +344,12 @@ public class Dnn {
     private static native long createTorchImporter_0(String filename, boolean isBinary);
     private static native long createTorchImporter_1(String filename);
 
-    // C++:  void shrinkCaffeModel(String src, String dst)
-    private static native void shrinkCaffeModel_0(String src, String dst);
+    // C++:  void NMSBoxes(vector_Rect bboxes, vector_float scores, float score_threshold, float nms_threshold, vector_int& indices, float eta = 1.f, int top_k = 0)
+    private static native void NMSBoxes_0(long bboxes_mat_nativeObj, long scores_mat_nativeObj, float score_threshold, float nms_threshold, long indices_mat_nativeObj, float eta, int top_k);
+    private static native void NMSBoxes_1(long bboxes_mat_nativeObj, long scores_mat_nativeObj, float score_threshold, float nms_threshold, long indices_mat_nativeObj);
+
+    // C++:  void shrinkCaffeModel(String src, String dst, vector_String layersTypes = std::vector<String>())
+    private static native void shrinkCaffeModel_0(String src, String dst, List<String> layersTypes);
+    private static native void shrinkCaffeModel_1(String src, String dst);
 
 }

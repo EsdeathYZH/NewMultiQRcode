@@ -63,7 +63,7 @@ public class ImageManipulationsActivity extends Activity implements CvCameraView
     private float                mBuff[];
     private Mat                  mSepiaKernel;
 
-    public static int           viewMode = VIEW_MODE_RGBA;
+    public static int           viewMode = 1;
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override

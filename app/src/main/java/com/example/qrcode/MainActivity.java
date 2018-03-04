@@ -16,10 +16,12 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import com.dtr.zxing.activity.CaptureActivity;
+import com.dtr.zxing.activity.MyCaptureActivity;
 import com.dtr.zxing.activity.ScanFileActivity;
 
 import static android.content.ContentValues.TAG;
@@ -35,6 +37,7 @@ public class MainActivity extends Activity {
     ImageView imgHuaishi;
     private Button start_scan;
     private Button file_scan;
+    private Button start_camera;
     private static boolean flag = true;
     private static final String TAG = "MainActivity";
 
@@ -66,8 +69,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         start_scan=(Button)findViewById(R.id.startscan);
         file_scan=(Button) findViewById(R.id.scan_file);
+        start_camera=(Button) findViewById(R.id.cv_camera);
         btnProcess = (Button)findViewById(R.id.btn_gray_process);
         imgHuaishi = (ImageView)findViewById(R.id.img_huaishi);
+
         btnProcess.setOnClickListener(new ProcessClickListener());
         file_scan.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -79,7 +84,14 @@ public class MainActivity extends Activity {
         start_scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                Intent intent=new Intent(MainActivity.this, CaptureActivity.class);
+                Intent intent=new Intent(MainActivity.this, MyCaptureActivity.class);
+                startActivity(intent);
+            }
+        });
+        start_camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                Intent intent=new Intent(MainActivity.this, CameraActivity.class);
                 startActivity(intent);
             }
         });
@@ -113,6 +125,8 @@ public class MainActivity extends Activity {
 
         @Override
         public void onClick(View v) {
+            Mat testMat=new Mat(1,1, CvType.CV_32F);
+            Toast.makeText(MainActivity.this,""+testMat.get(1,1),Toast.LENGTH_SHORT).show();
             // TODO Auto-generated method stub
 //            if(isFirst)
 //            {

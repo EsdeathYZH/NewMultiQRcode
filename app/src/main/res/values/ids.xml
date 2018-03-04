@@ -17,8 +17,10 @@
 <resources>
 
     <item name="decode" type="id"/>
+    <item name="adjust" type="id"/>
     <item name="decode_failed" type="id"/>
     <item name="decode_succeeded" type="id"/>
+    <item name="adjust_succeeded" type="id"/>
     <item name="quit" type="id"/>
     <item name="restart_preview" type="id"/>
     <item name="return_scan_result" type="id"/>

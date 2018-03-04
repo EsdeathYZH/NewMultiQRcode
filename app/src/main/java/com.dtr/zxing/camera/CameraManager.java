@@ -72,7 +72,6 @@ public class CameraManager {
 	public synchronized void openDriver(SurfaceHolder holder) throws IOException {
 		Camera theCamera = camera;
 		if (theCamera == null) {
-
 			if (requestedCameraId >= 0) {
 				theCamera = OpenCameraInterface.open(requestedCameraId);
 			} else {
@@ -140,7 +139,7 @@ public class CameraManager {
 	public synchronized void startPreview() {
 		Camera theCamera = camera;
 		if (theCamera != null && !previewing) {
-			theCamera.startPreview();//这句话存在的意义？
+			theCamera.startPreview();//start preview
 			previewing = true;
 			autoFocusManager = new AutoFocusManager(context, camera);
 		}

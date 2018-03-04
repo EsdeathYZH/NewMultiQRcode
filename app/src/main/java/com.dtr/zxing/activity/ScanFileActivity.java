@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.dtr.zxing.decode.DecodeFormatManager;
 import com.dtr.zxing.decode.DecodeThread;
+import com.example.qrcode.Bbox;
 import com.example.qrcode.MainActivity;
 import com.example.qrcode.R;
 import com.google.zxing.BarcodeFormat;
@@ -54,7 +55,7 @@ import java.util.Map;
  */
 
 public class ScanFileActivity extends Activity implements SurfaceHolder.Callback {
-    private ArrayList<Box> boxes;
+    private ArrayList<Bbox> boxes;
     InputStream xmlFile;
     private ImageView backPreview;
     private SurfaceView drawPreview;
@@ -62,16 +63,11 @@ public class ScanFileActivity extends Activity implements SurfaceHolder.Callback
     private final MultiFormatReader multiFormatReader = new MultiFormatReader();
     private ArrayList<LuminanceSource> luminanceSources;
     private ArrayList<Result> rawResults;
-    Map<DecodeHintType, Object> hints;
+    private Map<DecodeHintType, Object> hints;
     private boolean isHasSurface;
     private Paint paint;
     private Canvas canvas;
-    class Box {
-        public int x;
-        public int y;
-        public int width;
 
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,8 +145,9 @@ public class ScanFileActivity extends Activity implements SurfaceHolder.Callback
     }
 
     private void initBoxes() throws Exception {
-        boxes = new ArrayList<Box>();
-        Box box = new Box();
+        boxes = new ArrayList<Bbox>();
+
+        Bbox box = new Bbox();
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         XmlPullParser pullParser = factory.newPullParser();
         pullParser.setInput(xmlFile, "UTF-8");
@@ -166,19 +163,19 @@ public class ScanFileActivity extends Activity implements SurfaceHolder.Callback
                         break;
                     } else if ("x".equals(pullParser.getName())) {
                         int x = Integer.parseInt(pullParser.nextText());
-                        box.x = x;
+                        box.x=x;
                     } else if ("y".equals(pullParser.getName())) {
                         int y = Integer.parseInt(pullParser.nextText());
-                        box.y = y;
+                        box.y=y;
                     } else if ("w".equals(pullParser.getName())) {
                         int width = Integer.parseInt(pullParser.nextText());
-                        box.width = width;
+                        box.width=width;
                     }
                     break;
                 case XmlPullParser.END_TAG:
                     if ("_".equals(pullParser.getName())) {
                         boxes.add(box);
-                        box = new Box();
+                        box = new Bbox();
                     } else if ("data".equals(pullParser.getName())) {
                         return;
                     }
@@ -206,7 +203,7 @@ public class ScanFileActivity extends Activity implements SurfaceHolder.Callback
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(luminanceSources.get(i)));
             try {
                 Result result = multiFormatReader.decode(bitmap);
-                Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
                 rawResults.add(result);
             } catch (ReaderException re) {
                 rawResults.add(null);
@@ -223,8 +220,8 @@ public class ScanFileActivity extends Activity implements SurfaceHolder.Callback
             paint.setTextSize(28);
             for (int i = 0; i < boxes.size(); i++) {
                 if (rawResults.get(i) != null) {
-                    canvas.drawText(rawResults.get(i).getText(), boxes.get(i).x*15/8,
-                            boxes.get(i).y*15/8+boxes.get(i).width*15/16, paint);//画出结果
+                    canvas.drawText(rawResults.get(i).getText(), boxes.get(i).y*15/8,
+                            boxes.get(i).y*15/8+boxes.get(i).y*15/16, paint);//画出结果
                 }
             }
         } catch (Exception e) {

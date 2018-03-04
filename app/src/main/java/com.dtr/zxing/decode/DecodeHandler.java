@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.dtr.zxing.activity.MyCaptureActivity;
 import com.example.qrcode.R;
 import com.dtr.zxing.activity.CaptureActivity;
 import com.google.zxing.BinaryBitmap;
@@ -58,6 +59,9 @@ public class DecodeHandler extends Handler {
 		case R.id.decode:
 			decode((byte[]) message.obj, message.arg1, message.arg2);
 			break;
+		case R.id.adjust:
+			adjust((byte[]) message.obj, message.arg1, message.arg2);
+			break;
 		case R.id.quit:
 			running = false;
 			Looper.myLooper().quit();
@@ -65,6 +69,13 @@ public class DecodeHandler extends Handler {
 		}
 	}
 
+	private void adjust(byte[] data,int width,int height){
+		/*
+		In this part,we must have get the positions of bounding boxes,
+		What we will do next is to adjust these position,
+		and if we discover any exception,we 'll restart the algorithm of decode.
+		 */
+	}
 	/**
 	 * Decode the data within the viewfinder rectangle, and time how long it
 	 * took. For efficiency, reuse the same reader objects from one decode to
@@ -91,6 +102,16 @@ public class DecodeHandler extends Handler {
 		int tmp = size.width;
 		size.width = size.height;
 		size.height = tmp;*/
+
+
+		/*
+
+
+		In this part,we change data image to LBP image,and find the initial bounding boxes;
+		After find bboxes,we store them in MyCaptureActivity.
+
+
+		 */
 
 		Result rawResult = null;
 		PlanarYUVLuminanceSource source = buildLuminanceSource(data, size.width, size.height);

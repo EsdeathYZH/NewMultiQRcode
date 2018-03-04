@@ -122,7 +122,7 @@ public final class CameraConfigurationManager {
 		}
 
 		/** 设置相机预览为竖屏 */
-		camera.setDisplayOrientation(0);//changed
+		//camera.setDisplayOrientation(0);//changed
 	}
 
 	public Point getCameraResolution() {
