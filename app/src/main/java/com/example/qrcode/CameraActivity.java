@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.dtr.zxing.decode.DecodeFormatManager;
 import com.google.zxing.BarcodeFormat;
@@ -21,8 +22,12 @@ import com.google.zxing.common.HybridBinarizer;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.ximgproc.GraphSegmentation;
 import org.opencv.ximgproc.Ximgproc;
 
@@ -41,6 +46,8 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
     private CameraBridgeViewBase mOpenCvCameraView;
 
     private ArrayList<Rect> bboxes;
+    private Mat[] segs ;
+    private int cnt = 0;
     private ArrayList<String> results;
     private ArrayList<LuminanceSource> luminanceSources;
 
@@ -52,6 +59,8 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
     private int STATE_FAILED = 2;
 
     private int state = STATE_DECODE;
+
+    private Mat save_mat;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -85,6 +94,11 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         multiFormatReader = new MultiFormatReader();
         initHint();
         multiFormatReader.setHints(hints);
+//        try{
+//            com.example.qrcode.Utils.saveToSDCard(this,R.raw.svc_model,"svm_model.xml");
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -111,9 +125,10 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
 		 */
         Mat image_mat = inputFrame.rgba();
         Mat gray_mat = inputFrame.gray();
+        Bitmap image = Bitmap.createBitmap(image_mat.width(),image_mat.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(image_mat,image);
 
         if(state == STATE_DECODE) {
-
             results.clear();
             bboxes.clear();
             luminanceSources.clear();
@@ -125,15 +140,23 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
             if (graph_seg != null) {
                 graph_seg.setSigma(0.8);
                 graph_seg.setK(2);
-                graph_seg.setMinSize(min_sizes[0]);
+                graph_seg.setMinSize(2250);
                 graph_seg.processImage(image_mat, seg);
                 Core.MinMaxLocResult minMaxLocResult = Core.minMaxLoc(seg);
                 int nb_segs = (int) minMaxLocResult.maxVal + 1;
 
                 QrRegion qrRegion = new QrRegion(this, image_mat, seg, nb_segs);
                 qrRegion.process();
-                qrRegion.get_bbox();
+                cnt = qrRegion.get_bbox();
+                segs = qrRegion.get_seg_mat();
+                for(int i=0; i<segs.length;i++){
+                    Bitmap temp_image = Bitmap.createBitmap(segs[i].cols(),segs[i].rows(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(segs[i],temp_image);
+                    com.example.qrcode.Utils.saveBitmap("seg"+i,temp_image);
+                }
             }
+            buildLuminanceSource(image,image_mat.width(),image_mat.height());
+            //if(bboxes.size()!=0) Toast.makeText(this,"Success!",Toast.LENGTH_SHORT).show();
             for (int i = 0; i < bboxes.size(); i++) {
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(luminanceSources.get(i)));
                 try {
@@ -141,23 +164,43 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
                     //Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
                     results.add(result.getText());
                 } catch (ReaderException re) {
-                    results.add(null);
+                    results.add("Failed!");
                     re.printStackTrace();
                 } finally {
                     multiFormatReader.reset();
                 }
+                Imgproc.rectangle(image_mat,
+                        new Point(bboxes.get(i).left,bboxes.get(i).top),
+                        new Point(bboxes.get(i).right,bboxes.get(i).bottom),
+                        new Scalar(0,255,0));
+                Imgproc.putText(image_mat,results.get(i),
+                        new Point(bboxes.get(i).left,bboxes.get(i).top),
+                        3,1,new Scalar(0,255,0));
             }
+            save_mat = image_mat;
             //change the state
             if(bboxes.size() != 0){
                 state = STATE_ADJUST;
             }else state = STATE_FAILED;
 
         }else if(state == STATE_ADJUST){
-
+            for (int i = 0; i < bboxes.size(); i++) {
+                Imgproc.rectangle(save_mat,
+                        new Point(bboxes.get(i).left,bboxes.get(i).top),
+                        new Point(bboxes.get(i).right,bboxes.get(i).bottom),
+                        new Scalar(0,255,0));
+//                Imgproc.putText(image_mat,results.get(i),
+//                        new Point(bboxes.get(i).left,bboxes.get(i).top),
+//                        3,1,new Scalar(255,255,255));
+            }
+            Imgproc.putText(image_mat,String.valueOf(cnt),
+                    new Point(bboxes.get(0).left,bboxes.get(0).top),
+                    3,1,new Scalar(0,255,0));
+            return save_mat;
         }else{
 
         }
-        return image_mat;
+        return save_mat;
     }
 
     private void buildLuminanceSource(Bitmap data, int width, int height) {

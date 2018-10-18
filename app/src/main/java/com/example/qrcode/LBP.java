@@ -23,7 +23,7 @@ public class LBP {
     public LBP(){
         table=new byte[256];
         byte dim=0;
-        for(byte i=0;i<256;i++){
+        for(int i=0;i<256;i++){
             if(get_hop_count(i)<=2){
                 table[i]=++dim;
             }
@@ -36,13 +36,12 @@ public class LBP {
 
         int histSize=dim;
 
-        hist=Mat.zeros(hs*ws,dim, CvType.CV_32FC1);
-
         for(int i=0;i<hs;i++){
             for (int j=0;j<ws;j++){
-                Mat proc_hist=Mat.zeros(dim,1,CvType.CV_32FC1);
+                Mat proc_hist=Mat.zeros(histSize,1,CvType.CV_32FC1);
                 Mat proc_seg=new Mat(src, new Rect(j*maskw,i*maskh,maskw,maskh));
-                Imgproc.calcHist(Arrays.asList(proc_seg),new MatOfInt(0),null,
+                Mat mask = Mat.ones(proc_seg.size(),proc_seg.type());
+                Imgproc.calcHist(Arrays.asList(proc_seg),new MatOfInt(0),mask,
                         proc_hist,new MatOfInt(histSize),new MatOfFloat(0,59));
                 Core.normalize(proc_hist,proc_hist,1.0,0.0,Core.NORM_L2);
                 proc_hist=proc_hist.t();
@@ -58,7 +57,7 @@ public class LBP {
             Log.d("[ERROR]:","unsupport Image Type.");
             return ;
         }
-        else if(src.channels()==3){
+        else if(src.channels()>=3){
             Imgproc.cvtColor(src,src,Imgproc.COLOR_BGR2GRAY);
         }
 
@@ -67,42 +66,39 @@ public class LBP {
 
         Core.copyMakeBorder(src,src,1,1,1,1,Core.BORDER_REPLICATE);
 
-        dst=Mat.zeros(rows,cols,CvType.CV_8UC1);
 
-        final int a=src.cols();
-        final int b=dst.cols();
-
-        byte[] src_byte=new byte[cols*rows];
+        byte[] src_byte=new byte[(cols+2)*(rows+2)];
         byte[] dst_byte=new byte[cols*rows];
         src.put(0,0,src_byte);
 
         for(int i=1;i<=rows;i++){
-            for(int j=1;j<=cols;j++){//??????
-                byte code=0;
+            for(int j=1;j<=cols;j++){
+                int code=0;
                 byte center=src_byte[cols*i+j];
                 code|=(src_byte[cols*(i-1)+j-1]>=center?(1<<7):0);
-                code|=(src_byte[cols*i+j-1]>=center?(1<<6):0);
+                code|=(src_byte[cols*(i-1)+j+1]>=center?(1<<1):0);
+                code|=(src_byte[cols*(i-1)+j]>=center?1:0);
                 code|=(src_byte[cols*(i+1)+j-1]>=center?(1<<5):0);
                 code|=(src_byte[cols*(i+1)+j]>=center?(1<<4):0);
                 code|=(src_byte[cols*(i+1)+j+1]>=center?(1<<3):0);
+                code|=(src_byte[cols*i+j-1]>=center?(1<<6):0);
                 code|=(src_byte[cols*i+j+1]>=center?(1<<2):0);
-                code|=(src_byte[cols*(i-1)+j+1]>=center?(1<<1):0);
-                code|=(src_byte[cols*(i-1)+j]>=center?(1<<0):0);
 
                 dst_byte[cols*(i-1)+j-1]=table[code];
             }
         }
+        dst.get(0,0,dst_byte);
     }
 
-    public int get_hop_count(byte code){
+    public int get_hop_count(int code){
         int k=7;
         int cnt=0;
 
         int []a=new int[8];
         code%=256;
         while(code>0){
-            a[k]=code & 1;
-            code=(byte)(code>>1);
+            a[k] = code & 1;
+            code = code>>1;
             k--;
         }
 

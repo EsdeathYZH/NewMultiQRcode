@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
@@ -35,6 +36,7 @@ import com.google.zxing.common.HybridBinarizer;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.ximgproc.GraphSegmentation;
 import org.opencv.ximgproc.Ximgproc;
@@ -95,72 +97,76 @@ public class MyDecodeHandler extends Handler {
 	 *            The height of the preview frame.
 	 */
 	private void decode(byte[] data, int width, int height) {
-//		Size size = activity.getCameraManager().getPreviewSize();
-//
-//		YuvImage yuvImage=new YuvImage(data, ImageFormat.YUY2,size.width,size.height,null);
-//
-//		Bitmap image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888);
-//		Log.d("BUFFER","Buffer-size:"+data.length+"image-size"+size.width*size.height);
-//		Mat image_mat=new Mat(),seg=new Mat();
-//		image.copyPixelsFromBuffer(ByteBuffer.wrap(data));
-//		Utils.bitmapToMat(image,image_mat);
-//
-//		/*
-//
-//		In this part,we change data image to LBP image,and find the initial bounding boxes;
-//		After find bboxes,we store them in MyCaptureActivity.
-//
-//		 */
-//
-//		int []min_sizes=new int[]{1250,1750,2250,2750,3250};
-//
-//		GraphSegmentation graph_seg= Ximgproc.createGraphSegmentation();
-//		if(graph_seg!=null){
-//			graph_seg.setSigma(0.8);
-//			graph_seg.setK(2);
-//			graph_seg.setMinSize(min_sizes[0]);
-//			graph_seg.processImage(image_mat,seg);
-//			Core.MinMaxLocResult minMaxLocResult=Core.minMaxLoc(seg);
-//			int nb_segs=(int)minMaxLocResult.maxVal+1;
-//
+		Size size = activity.getCameraManager().getPreviewSize();
+
+		YuvImage yuvImage=new YuvImage(data, ImageFormat.YUY2,size.width,size.height,null);
+
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+		if(!yuvImage.compressToJpeg(new Rect(0,0,width,height),100,outputStream)){
+			return;
+		}
+		byte[] tmp = outputStream.toByteArray();
+		Bitmap image = BitmapFactory.decodeByteArray(tmp,0,tmp.length);
+		Mat image_mat = new Mat(width,height, CvType.CV_8UC4);
+		Utils.bitmapToMat(image,image_mat);
+
+		/*
+
+		In this part,we change data image to LBP image,and find the initial bounding boxes;
+		After find bboxes,we store them in MyCaptureActivity.
+
+		 */
+		Mat seg = new Mat();
+		int []min_sizes=new int[]{1250,1750,2250,2750,3250};
+
+		GraphSegmentation graph_seg= Ximgproc.createGraphSegmentation();
+		if(graph_seg!=null){
+			graph_seg.setSigma(0.8);
+			graph_seg.setK(2);
+			graph_seg.setMinSize(min_sizes[0]);
+			graph_seg.processImage(image_mat,seg);
+			Core.MinMaxLocResult minMaxLocResult=Core.minMaxLoc(seg);
+			int nb_segs=(int)minMaxLocResult.maxVal+1;
+
 //			QrRegion qrRegion=new QrRegion(activity,image_mat,seg,nb_segs);
 //			qrRegion.process();
 //			qrRegion.get_bbox();
-//		}
-//
-//		Result rawResult = null;
-//		RGBLuminanceSource[] sources = buildLuminanceSource(image, size.width, size.height);
-//		if (sources != null) {
-//			for(int i=0;i<sources.length;i++){
-//				if(sources[i]==null){
-//					activity.addResult("");
-//					continue;
-//				}
-//				BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(sources[i]));
-//				try {
-//					rawResult = multiFormatReader.decodeWithState(bitmap);
-//					activity.addResult(rawResult.getText());
-//				} catch (ReaderException re) {
-//					activity.addResult("Failed!");
-//				} finally {
-//					multiFormatReader.reset();
-//				}
-//			}
-//		}
-//
-//		Handler handler = activity.getHandler();
-//		if (rawResult != null) {
-//			// Don't log the barcode contents for security.
-//			if (handler != null) {
-//				Message message = Message.obtain(handler, R.id.decode_succeeded);
-//				message.sendToTarget();
-//			}
-//		} else {
-//			if (handler != null) {
-//				Message message = Message.obtain(handler, R.id.decode_failed);
-//				message.sendToTarget();
-//			}
-//		}
+		}
+
+		Result rawResult = null;
+		RGBLuminanceSource[] sources = buildLuminanceSource(image, size.width, size.height);
+		if (sources != null) {
+			for(int i=0;i<sources.length;i++){
+				if(sources[i]==null){
+					activity.addResult("");
+					continue;
+				}
+				BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(sources[i]));
+				try {
+					rawResult = multiFormatReader.decodeWithState(bitmap);
+					activity.addResult(rawResult.getText());
+				} catch (ReaderException re) {
+					activity.addResult("Failed!");
+				} finally {
+					multiFormatReader.reset();
+				}
+			}
+		}
+
+		Handler handler = activity.getHandler();
+		if (rawResult != null) {
+			// Don't log the barcode contents for security.
+			if (handler != null) {
+				Message message = Message.obtain(handler, R.id.decode_succeeded);
+				message.sendToTarget();
+			}
+		} else {
+			if (handler != null) {
+				Message message = Message.obtain(handler, R.id.decode_failed);
+				message.sendToTarget();
+			}
+		}
 
 	}
 
